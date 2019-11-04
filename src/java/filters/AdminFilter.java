@@ -2,9 +2,8 @@
 package filters;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -14,6 +13,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import models.Role;
+import models.User;
+import services.UserService;
 
 /**
  *
@@ -30,21 +32,28 @@ public class AdminFilter implements Filter {
             FilterChain chain)
             throws IOException, ServletException {
         
-      // code that is executed before the servlet
-        
-        HttpServletRequest hsr = (HttpServletRequest)request;
-        HttpSession session = hsr.getSession();
-        
-        if (session.getAttribute("email") == null) {
-            HttpServletResponse hsre = (HttpServletResponse)response;
-            hsre.sendRedirect("login");
-            return;
-        } 
-        
-         // allow the user to access the servlet
-         chain.doFilter(request, response);
-         
-         // code that is executed after the servlet
+        try {
+            // code that is executed before the servlet
+            
+            HttpServletRequest hsr = (HttpServletRequest)request;
+            HttpSession session = hsr.getSession();
+            
+            UserService us = new UserService();
+            
+            User user = us.get((String) session.getAttribute("email"));
+            Role role = user.getRole();
+            
+            if(role.getRoleName().equals("admin"))
+            {
+                HttpServletResponse hsre = (HttpServletResponse) response;
+            }
+            // allow the user to access the servlet
+            chain.doFilter(request, response);
+            
+            // code that is executed after the servlet
+        } catch (Exception ex) {
+            Logger.getLogger(AdminFilter.class.getName()).log(Level.SEVERE, null, ex);
+        }
       
     }
 
