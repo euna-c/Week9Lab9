@@ -40,24 +40,24 @@ public class AdminFilter implements Filter {
             
             UserService us = new UserService();
             
+            //Get a user in session
             User user = us.get((String) session.getAttribute("email"));
             Role role = user.getRole();
             
-            if(!role.getRoleName().equals("admin"))
+            if(!role.getRoleName().contains("admin"))
             {
                 HttpServletResponse hsr2 = (HttpServletResponse) response;
                 hsr2.sendRedirect("home");
                 return;
-                
             }
-            // allow the user to access the servlet
+            
+            // allow the user to access the user servlet
             chain.doFilter(request, response);
             
             // code that is executed after the servlet
         } catch (Exception ex) {
             //Logger.getLogger(AdminFilter.class.getName()).log(Level.SEVERE, null, ex);
         }
-      
     }
 
     @Override
